@@ -55,7 +55,7 @@ int main ( )
     	// sockets puedan reutilizar cualquier puerto al que nos enlacemos.
     	// Esto permite· en protocolos como el TCP, poder ejecutar un
     	// mismo programa varias veces seguidas y enlazarlo siempre al
-   	 // mismo puerto. De lo contrario habrÌa que esperar a que el puerto
+   	    // mismo puerto. De lo contrario habrÌa que esperar a que el puerto
     	// quedase disponible (TIME_WAIT en el caso de TCP)
     	on=1;
     	ret = setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
@@ -283,8 +283,8 @@ int main ( )
                                         }
                                     }
                                 }
-                                //Se ha introducido por pantalla un usuario y una contraseña con la estructrua REGISTER -u "usuario" -p "contraseña"
-                                else if(strncmp(buffer, "REGISTER", 8) == 0){
+                                //Se ha introducido por pantalla un usuario y una contraseña con la estructrua REGISTRO -u "usuario" -p "contraseña"
+                                else if(strncmp(buffer, "REGISTRO", 8) == 0){
                                     
                                     bzero(bufferAux, sizeof(bufferAux));
                                     char usuario_[100]; //En esta variable almacenamos el usuario introducido
