@@ -25,6 +25,19 @@ Estados del jugador.
 #define CONTRASENA 2
 #define INICIAR_PARTIDA 3
 #define JUGAR 4
+#define FILAS 6
+#define COLUMNAS 7
+#define ESPACIO_VACIO ' '
+#define FILA_NO_ENCONTRADA -1
+#define ERROR_FILA_INVALIDA 4
+#define ERROR_COLUMNA_LLENA 2
+#define ERROR_NINGUNO 3
+#define CONECTA 4
+#define CONECTA_ARRIBA 1
+#define CONECTA_DERECHA 2
+#define CONECTA_ABAJO_DERECHA 3
+#define CONECTA_ARRIBA_DERECHA 4
+#define NO_CONECTA 0
 
 /*
 Declaramos dos estructuras para almacenar los datos de los jugadores y de las partidas y relacionarlos entre ellos.
@@ -277,4 +290,150 @@ int resolverPanel(char * refran, char * solution){
 int comprobarFinalPartida(int partida){
 
 	return strcmp(partidas[partida].refran, partidas[partida].panel) == 0;
+}
+
+//nuestro
+
+//Obtiene la fila de la columna elegida en la que se quedará la pieza
+int obtenerFilaDesocupada(int columna, char tablero[FILAS][COLUMNAS]) {
+    int i;
+    for (i = FILAS - 1; i >= 0; i--) {
+        if (tablero[i][columna] == ESPACIO_VACIO) {
+            return i;
+        }
+    }
+    return FILA_NO_ENCONTRADA;
+}
+
+//Se le dice jugador (o si es la pieza X o O) y columna en la que queremos poner la pieza
+int colocarPieza(char jugador, int columna, char tablero[FILAS][COLUMNAS]) {
+    if (columna < 0 || columna >= COLUMNAS) {
+        return ERROR_FILA_INVALIDA;
+    }
+    int fila = obtenerFilaDesocupada(columna, tablero);
+    if (fila == FILA_NO_ENCONTRADA) {
+        return ERROR_COLUMNA_LLENA;
+    }
+    tablero[fila][columna] = jugador;
+    return ERROR_NINGUNO;
+}
+
+//Funcion dibuja el tablero 
+int dibujarTablero(char tablero[FILAS][COLUMNAS]) {
+    dibujarEncabezado(COLUMNAS);
+    printf("\n");
+    int i;
+    for (i = 0; i < FILAS; ++i) {
+        int j;
+        for (j = 0; j < COLUMNAS; ++j) {
+            printf("|%c", tablero[i][j]);
+            if (j + 1 >= COLUMNAS) {
+                printf("|");
+            }
+        }
+        printf("\n");
+    }
+    return 0;
+}
+
+
+//Funcion que nos imporfa si es empate
+int esEmpate(char tablero[FILAS][COLUMNAS]) {
+    int i;
+    for (i = 0; i < COLUMNAS; ++i) {
+        int resultado = obtenerFilaDesocupada(i, tablero);
+        if (resultado != FILA_NO_ENCONTRADA) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int contarArriba(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
+    int yInicio = (y - CONECTA >= 0) ? y - CONECTA + 1 : 0;
+    int contador = 0;
+    for (; yInicio <= y; yInicio++) {
+        if (tablero[yInicio][x] == jugador) {
+            contador++;
+        } else {
+            contador = 0;
+        }
+    }
+    return contador;
+}
+
+int contarDerecha(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
+    int xFin = (x + CONECTA < COLUMNAS) ? x + CONECTA - 1 : COLUMNAS - 1;
+    int contador = 0;
+    for (; x <= xFin; x++) {
+        if (tablero[y][x] == jugador) {
+            contador++;
+        } else {
+            contador = 0;
+        }
+    }
+    return contador;
+}
+
+int contarArribaDerecha(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
+    int xFin = (x + CONECTA < COLUMNAS) ? x + CONECTA - 1 : COLUMNAS - 1;
+    int yInicio = (y - CONECTA >= 0) ? y - CONECTA + 1 : 0;
+    int contador = 0;
+    while (x <= xFin && yInicio <= y) {
+        if (tablero[y][x] == jugador) {
+            contador++;
+        } else {
+            contador = 0;
+        }
+        x++;
+        y--;
+    }
+    return contador;
+}
+
+int contarAbajoDerecha(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
+    int xFin = (x + CONECTA < COLUMNAS) ? x + CONECTA - 1 : COLUMNAS - 1;
+    int yFin = (y + CONECTA < FILAS) ? y + CONECTA - 1 : FILAS - 1;
+    int contador = 0;
+    while (x <= xFin && y <= yFin) {
+        if (tablero[y][x] == jugador) {
+            contador++;
+        } else {
+            contador = 0;
+        }
+        x++;
+        y++;
+    }
+    return contador;
+}
+
+int ganador(char jugador, char tablero[FILAS][COLUMNAS]) {
+/*
+ * Solo necesitamos
+ * Arriba
+ * Derecha
+ * Arriba derecha
+ * Abajo derecha
+ *
+ * */
+    int y;
+    for (y = 0; y < FILAS; y++) {
+        int x;
+        for (x = 0; x < COLUMNAS; x++) {
+            int conteoArriba = contarArriba(x, y, jugador, tablero);
+            if (conteoArriba >= CONECTA) {
+                return CONECTA_ARRIBA;
+            }
+            if (contarDerecha(x, y, jugador, tablero) >= CONECTA) {
+                return CONECTA_DERECHA;
+            }
+            if (contarArribaDerecha(x, y, jugador, tablero) >= CONECTA) {
+                return CONECTA_ARRIBA_DERECHA;
+            }
+            if (contarAbajoDerecha(x, y, jugador, tablero) >= CONECTA) {
+                return CONECTA_ABAJO_DERECHA;
+            }
+        }
+    }
+    return NO_CONECTA;
 }
