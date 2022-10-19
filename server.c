@@ -29,6 +29,7 @@ int main ( )
    	int salida;
    	int arrayClientes[MAX_CLIENTS];
     int numClientes = 0;
+
    	//contadores
     int i,j,k;
 	int recibidos;
@@ -37,8 +38,8 @@ int main ( )
 
     inicializarVectores();
 
-    char refranes[20][250];
-    extraerRefranes(refranes);
+    char tablero[FILAS][COLUMNAS];
+    char cadenatablero[CADENA_TABLERO];
 
     srand(time(NULL));
     
@@ -51,14 +52,14 @@ int main ( )
     		exit (1);	
 	}
     
-    	// Activaremos una propiedad del socket para permitir· que otros
-    	// sockets puedan reutilizar cualquier puerto al que nos enlacemos.
-    	// Esto permite· en protocolos como el TCP, poder ejecutar un
-    	// mismo programa varias veces seguidas y enlazarlo siempre al
-   	    // mismo puerto. De lo contrario habrÌa que esperar a que el puerto
-    	// quedase disponible (TIME_WAIT en el caso de TCP)
-    	on=1;
-    	ret = setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    // Activaremos una propiedad del socket para permitir· que otros
+    // sockets puedan reutilizar cualquier puerto al que nos enlacemos.
+    // Esto permite· en protocolos como el TCP, poder ejecutar un
+    // mismo programa varias veces seguidas y enlazarlo siempre al
+    // mismo puerto. De lo contrario habrÌa que esperar a que el puerto
+    // quedase disponible (TIME_WAIT en el caso de TCP)
+    on=1;
+    ret = setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
 
 
@@ -86,14 +87,14 @@ int main ( )
 	}
     
 	//Inicializar los conjuntos fd_set
-    	FD_ZERO(&readfds);
-    	FD_ZERO(&auxfds);
-    	FD_SET(sd,&readfds);
-    	FD_SET(0,&readfds);
-    
-   	
-    	//Capturamos la señal SIGINT (Ctrl+c)
-    	signal(SIGINT,manejador);
+    FD_ZERO(&readfds);
+    FD_ZERO(&auxfds);
+    FD_SET(sd,&readfds);
+    FD_SET(0,&readfds);
+
+
+    //Capturamos la señal SIGINT (Ctrl+c)
+    signal(SIGINT,manejador);
     
 	/*-----------------------------------------------------------------------
 		El servidor acepta una petición
@@ -209,13 +210,10 @@ int main ( )
                                     bzero(buffer, sizeof(buffer));
                                     strcpy(buffer, "+Ok. Desconexión procesada.\n");
                                     send(i, buffer, sizeof(buffer), 0);
-
-                                    
                                 }
                                 //COMPARAMOS LO QUE SE HA INTRODUCIDO POR PANTALLA CON LAS CADENAS DE CARACTERES SIGUIENTES
 
-                                //María
-                                //Se ha introducido por pantalla un usuario
+                                //Se ha introducido por pantalla un usuario con la estructrua USUARIO "usuario"
                                 else if(strncmp(buffer, "USUARIO", 7) == 0){
 
                                     //Comprueba si el usuario estaba ya logueado anteriormente
@@ -250,7 +248,7 @@ int main ( )
                                         }
                                     }
                                 }
-                                //Se ha introducido por pantalla una contraseña
+                                //Se ha introducido por pantalla una contraseña con la estructrua PASSWORD "contraseña"
                                 else if(strncmp(buffer, "PASSWORD", 8) == 0){
 
                                     if(jugadores[i].estado != CONTRASENA){
@@ -307,15 +305,14 @@ int main ( )
                                 }
                                 //Se ha introducido por pantalla la cadena INICIAR-PARTIDA
                                 else if(strncmp(buffer, "INICIAR-PARTIDA", 15) == 0){
-
                                     //Comprobamos si el estado del jugador que lo ha introducido es INICIAR_PARTIDA, es decir, si se ha logueado
                                     //antes. De lo contrario, mostramos mensaje de error.
                                     if(jugadores[i].estado != INICIAR_PARTIDA){
-
                                         bzero(buffer, sizeof(buffer));
                                         strcpy(buffer, "-Err. El usuario debe estar logueado para poder iniciar una partida.\n");
                                         send(i, buffer, sizeof(buffer), 0);
                                     }
+
                                     else{
                                         /*
                                         Almacenamos en j el identificador de la partida en la que se ha metido al jugador.
@@ -328,38 +325,25 @@ int main ( )
                                             Si en la partida en la que se encuentra ya había un jugador esperando, se comienza a jugar.
                                             */
                                             if(partidas[id_partida].estado == ON){
-
-                                                strcpy(partidas[id_partida].refran, refranes[rand()%21]); //Se selecciona un refrán aleatoriamente.
-
-                                                //Se almacenan en el campo panel tantos huecos como letras tenga el refrán.
-                                                for (int it = 0; it < strlen(partidas[id_partida].refran); ++it){
-
-                                                    if(partidas[id_partida].refran[it] != ' ' && partidas[id_partida].refran[it] != ','){
-                                                        partidas[id_partida].panel[it] = '_';
-                                                    }
-                                                    else{
-                                                        partidas[id_partida].panel[it] = partidas[id_partida].refran[it];
-                                                    }
-                                                }
+                                                
+                                                char cadenaaux[] = "+Ok. Empieza la partida.\n";
+                                                dibujarTablero(tablero, &cadenatablero);
+                                                strcat(cadenaaux, cadenatablero);
 
                                                 bzero(buffer, sizeof(buffer));
-                                                sprintf(buffer, "+Ok. Empieza la partida. Turno del otro jugador. FRASE: %s\n", partidas[id_partida].panel);
+                                                strcpy(buffer, cadenaaux);
                                                 send(i, buffer, sizeof(buffer), 0);
 
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer,"+Ok. Empieza la partida. Turno de partida. FRASE: %s\n", partidas[id_partida].panel);
+                                                bzero(buffer, sizeof(buffer));
+                                                strcpy(buffer, cadenaaux);
                                                 send(partidas[id_partida].jugadores[0], buffer, sizeof(buffer),0);
+
 
                                                 // Cambiamos el estado de ambos jugadores a JUGAR.
                                                 jugadores[i].estado = JUGAR;
                                                 jugadores[partidas[id_partida].jugadores[0]].estado = JUGAR;
-
-                                                //Para comprobar si funciona
-                                                //printf("%s\n", partidas[id_partida].refran);
                                             }
-                                            /*
-                                            Si no, se queda a la espera de otro jugador.
-                                            */
+
                                             else{
 
                                                 bzero(buffer, sizeof(buffer));
@@ -367,6 +351,7 @@ int main ( )
                                                 send(i,buffer, sizeof(buffer), 0);
                                             }
                                         }
+
                                         else{
 
                                             bzero(buffer, sizeof(buffer));
@@ -375,343 +360,43 @@ int main ( )
                                         }
                                     }
                                 }
-                                //Se ha introducido por pantalla una consonante.
-                                else if(strncmp(buffer, "CONSONANTE", 10) == 0){
-
+                                //Se ha introducido por pantalla una columna.
+                                else if(strncmp(buffer, "COLOCAR-FICHA", 13) == 0){
+                                    
                                     int turno = partidas[jugadores[i].partida].turno;
 
                                     /*
-                                    Comprobamos si es el turno del jugador que ha introducido la consonante.
+                                    Comprobamos si es el turno del jugador que ha introducido la columna.
                                     */
+
                                     if(partidas[jugadores[i].partida].jugadores[turno] != i && jugadores[i].estado == JUGAR){
 
                                         bzero(buffer, sizeof(buffer));
                                         strcpy(buffer, "-Err. Debe esperar su turno.\n");
                                         send(i, buffer, sizeof(buffer),0);
                                     }
+
                                     /*
                                     Comprobamos si el jugador se encuentra en alguna partida.
                                     */
+
                                     else if(jugadores[i].estado == JUGAR){
-
-                                        char consonante = buffer[11]; //Almacenamos en esta variable la consonante.
-
-                                        int n_veces = comprobarConsonante(jugadores[i].partida, consonante); //Número de veces que aparece la consonante en el refrán.
+                                        char columna = buffer[14];
 
                                         /*
-                                        Comprueba si es una consonante.
+                                        Comprueba si es una columna.
                                         */
-                                        if(n_veces == -1){
+                                        if(columna < 1 || columna > 7){
                                             bzero(buffer, sizeof(buffer));
-                                            sprintf(buffer, "-Err. La letra introducida no es una consonante.\n");
+                                            sprintf(buffer, "-Err. El valor introducido no esta comprendido entre 1 y 7.\n");
                                             send(i, buffer, sizeof(buffer), 0);
                                         }
-                                        else if(n_veces == 0){
-
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(buffer, "+Ok. %c aparece %d veces. FRASE: %s\n", consonante, n_veces, partidas[jugadores[i].partida].panel);
-                                            send(i, buffer, sizeof(buffer), 0);
-
-                                            /*
-                                            Si la consonante introducida no se encuentra en el refrán, se cambia el turno.
-                                            */
-                                            if(partidas[jugadores[i].partida].turno == 0){
-
-                                                partidas[jugadores[i].partida].turno = 1;
-                                            }
-                                            else{
-
-                                                partidas[jugadores[i].partida].turno = 0;
-                                            }
-
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(buffer, "+Ok. %c aparece %d veces. Turno de la partida. FRASE: %s\n", consonante, n_veces, partidas[jugadores[i].partida].panel);
-                                            send(partidas[jugadores[i].partida].jugadores[partidas[jugadores[i].partida].turno],buffer,sizeof(buffer),0);
-                                        }
-                                        else{
-                                            /*
-                                            Se suman 50 puntos por cada vez que aparezca la consonante.
-                                            */
-                                            jugadores[i].puntuacion += (n_veces*50);
-
-                                            int jugador2;
-
-                                            //Se comprueba si con la consonante introducida se resuelve el refrán.
-                                            if(comprobarFinalPartida(jugadores[i].partida) == 1){
-
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer,"+Ok. Partida finalizada. FRASE: %s. Ha ganado el jugador %s con %d puntos.\n",partidas[jugadores[i].partida].refran, jugadores[i].usuario, jugadores[i].puntuacion);
-                                                send(i,buffer,sizeof(buffer),0);
-
-                                                jugador2 = partidas[jugadores[i].partida].jugadores[0];
-                                                if(partidas[jugadores[i].partida].jugadores[0]==i){
-
-                                                    jugador2 = partidas[jugadores[i].partida].jugadores[1];
-                                                }
-
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer,"+Ok. Partida finalizada. FRASE: %s. Ha ganado el jugador %s con %d puntos.\n",partidas[jugadores[i].partida].refran, jugadores[i].usuario, jugadores[i].puntuacion);
-                                                send(jugador2,buffer,sizeof(buffer),0);
-
-                                                partidas[jugadores[i].partida].estado = OFF;
-
-                                                partidas[jugadores[i].partida].jugadores[0] = -1;
-                                                partidas[jugadores[i].partida].jugadores[1] = -1;
-
-                                                bzero(partidas[jugadores[i].partida].refran,sizeof(partidas[jugadores[i].partida].refran));
-                                                bzero(partidas[jugadores[i].partida].panel,sizeof(partidas[jugadores[i].partida].panel));
-
-                                                //Se cambia el estado de los jugadores de JUGAR a INICIAR_PARTIDA
-                                                jugadores[i].estado = INICIAR_PARTIDA;
-                                                jugadores[jugador2].estado = INICIAR_PARTIDA;
-
-                                                //Una vez terminada la partida, se resetea la puntuación de los jugadores.
-                                                jugadores[i].puntuacion = 0;
-                                                jugadores[jugador2].puntuacion = 0;
-                                            }
-                                            //Si con la consonante introducida no se resuelve el refrán.
-                                            else{
-
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer,"+Ok. %c aparece %d veces. FRASE: %s\n", consonante, n_veces, partidas[jugadores[i].partida].panel);
-                                                send(i,buffer,sizeof(buffer),0);
-
-                                                int jugador2 = partidas[jugadores[i].partida].jugadores[0];
-                                                if(partidas[jugadores[i].partida].jugadores[0]==i){
-
-                                                    jugador2 = partidas[jugadores[i].partida].jugadores[1];
-                                                }
-
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer,"+Ok. %c aparece %d veces. FRASE: %s\n", consonante, n_veces, partidas[jugadores[i].partida].panel);
-                                                send(jugador2,buffer,sizeof(buffer),0);
-                                            }
-                                        }
                                     }
-                                    else{
-                                        bzero(buffer, sizeof(buffer));
-                                        strcpy(buffer, "-Err. No está jugando en ninguna partida.\n");
-                                        send(i, buffer, sizeof(buffer), 0);
-                                    }
+
+                                    
+
                                 }
-                                //Natalia
-                                //Se ha introducido por pantalla una vocal.
-                                else if(strncmp(buffer, "VOCAL", 5) == 0){
-
-                                    int turno = partidas[jugadores[i].partida].turno;
-
-                                    //Comprueba si es su turno.
-                                    if(partidas[jugadores[i].partida].jugadores[turno] != i && jugadores[i].estado == JUGAR){
-
-                                        bzero(buffer, sizeof(buffer));
-                                        strcpy(buffer, "-Err. Debe esperar su turno.\n");
-                                        send(i, buffer, sizeof(buffer), 0);
-                                    }
-                                    else if(jugadores[i].estado == JUGAR){
-
-                                        //Comprueba si puede comprar una vocal con la puntuación que tiene.
-                                        if(jugadores[i].puntuacion >= 50){
-
-                                            char vocal = buffer[6];
-                                            int nveces = comprobarVocal(jugadores[i].partida, vocal);
-
-                                            //NO ES UNA VOCAL
-                                            if(nveces == -1){
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer, "-Err. La letra introducida no es una vocal.\n");
-                                                send(i,buffer,sizeof(buffer),0);
-                                            }
-                                            //NO APARECE EN EL REFRÁN
-                                            else if(nveces == 0){
-
-                                                //Si la vocal introducida no se encuentra en la frase, se restan 50 puntos.
-                                                jugadores[i].puntuacion -= 50;
-
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer,"+Ok. %c aparece %d veces. FRASE: %s\n", vocal, nveces, partidas[jugadores[i].partida].panel);
-                                                send(i,buffer,sizeof(buffer),0);
-
-                                                //Se cambia el turno.
-                                                if(partidas[jugadores[i].partida].turno == 0){
-                                                    partidas[jugadores[i].partida].turno = 1 ;
-                                                }
-                                                else{
-                                                    partidas[jugadores[i].partida].turno = 0;
-                                                }
-
-                                                bzero(buffer,sizeof(buffer));
-                                                sprintf(buffer,"+Ok. %c aparece %d veces. Turno de la partida. FRASE: %s\n",vocal, nveces, partidas[jugadores[i].partida].panel);
-                                                send(partidas[jugadores[i].partida].jugadores[partidas[jugadores[i].partida].turno], buffer, sizeof(buffer),0);
-                                            }
-                                            //SÍ APARECE EN EL REFRÁN
-                                            else{
-
-                                                jugadores[i].puntuacion -= (nveces*50); //Restamos puntos.
-
-                                                int jugador2;
-
-                                                //Comprobamos si con la vocal introducida se termina la partida.
-                                                if(comprobarFinalPartida(jugadores[i].partida)){
-
-                                                    bzero(buffer,sizeof(buffer));
-                                                    sprintf(buffer, "+Ok. Partida finalizada. FRASE: %s. Ha ganado el jugador %s con %d puntos.\n", partidas[jugadores[i].partida].refran, jugadores[i].usuario, jugadores[i].puntuacion);
-                                                    send(i, buffer, sizeof(buffer), 0);
-
-                                                    jugador2 = partidas[jugadores[i].partida].jugadores[0];
-
-                                                    if(partidas[jugadores[i].partida].jugadores[0] == i){
-                                                        jugador2 = partidas[jugadores[i].partida].jugadores[1];
-                                                    }
-
-                                                    bzero(buffer, sizeof(buffer));
-                                                    sprintf(buffer, "+Ok. Partida finalizada. FRASE: %s. Ha ganado el jugador %s con %d puntos.\n", partidas[jugadores[i].partida].refran,jugadores[i].usuario, jugadores[i].puntuacion);
-                                                    send(jugador2, buffer, sizeof(buffer), 0);
-
-                                                    partidas[jugadores[i].partida].estado = OFF;
-
-                                                    partidas[jugadores[i].partida].jugadores[0] = -1;
-
-                                                    partidas[jugadores[i].partida].jugadores[1] = -1;
-
-                                                    bzero(partidas[jugadores[i].partida].refran, sizeof(partidas[jugadores[i].partida].refran));
-
-                                                    bzero(partidas[jugadores[i].partida].panel, sizeof(partidas[jugadores[i].partida].panel));
-
-                                                    jugadores[i].estado = INICIAR_PARTIDA;
-
-                                                    jugadores[jugador2].estado = INICIAR_PARTIDA;
-
-                                                    jugadores[i].puntuacion = 0;
-                                                    
-                                                    jugadores[jugador2].puntuacion = 0;
-                                                }
-                                                else{
-
-                                                    bzero(buffer, sizeof(buffer));
-                                                    sprintf(buffer, "+Ok. %c aparece %d veces. FRASE: %s\n", vocal, nveces, partidas[jugadores[i].partida].panel);
-                                                    send(i,buffer, sizeof(buffer),0);
-
-                                                    int jugador2 = partidas[jugadores[i].partida].jugadores[0];
-
-                                                    if(partidas[jugadores[i].partida].jugadores[0] == i){
-                                                        jugador2 = partidas[jugadores[i].partida].jugadores[1];
-                                                    }
-
-                                                    bzero(buffer, sizeof(buffer));
-                                                    sprintf(buffer, "+Ok. %c aparece %d veces. FRASE: %s\n", vocal, nveces, partidas[jugadores[i].partida].panel);
-                                                    send(jugador2, buffer, sizeof(buffer), 0);
-                                                }
-                                                
-                                            }
-                                        }
-                                        else{
-
-                                            bzero(buffer, sizeof(buffer));
-                                            strcpy(buffer, "+Ok. No tienes puntuación suficiente.\n");
-                                            send(i,buffer, sizeof(buffer), 0);
-                                        }
-                                    }
-                                    else{
-
-                                        bzero(buffer, sizeof(buffer));
-                                        strcpy(buffer, "-Err. Actualmente no está jugando en ninguna partida.\n");
-                                        send(i, buffer, sizeof(buffer), 0);
-                                    }
-                                }
-                                //María
-                                //Se ha introducido por pantalla la cadena RESOLVER.
-                                else if(strncmp(buffer, "RESOLVER", 8) == 0){
-
-                                    int turno = partidas[jugadores[i].partida].turno;
-
-                                    //Comprueba si es su turno.
-                                    if(partidas[jugadores[i].partida].jugadores[turno] != i && jugadores[i].estado == JUGAR){
-                                        bzero(buffer, sizeof(buffer));
-                                        strcpy(buffer, "-Err. Debe esperar su turno.\n");
-                                        send(i, buffer, sizeof(buffer), 0);
-                                    }
-                                    else if(jugadores[i].estado == JUGAR){
-
-                                        char * s = buffer + 9;
-                                        s[strlen(s)-1] = '\0';
-                                        int jugador2;
-
-                                        //Comprueba si la frase introducida es correcta.
-                                        if(resolverPanel(partidas[jugadores[i].partida].refran, s) == 1){
-
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(buffer, "+Ok. Partida finalizada. FRASE: %s. Ha ganado el jugador %s con %d puntos.\n", partidas[jugadores[i].partida].refran, jugadores[i].usuario, jugadores[i].puntuacion);
-                                            send(i, buffer, sizeof(buffer), 0);
-
-                                            jugador2 = partidas[jugadores[i].partida].jugadores[0];
-
-                                            if(partidas[jugadores[i].partida].jugadores[0] == i){
-                                                jugador2 = partidas[jugadores[i].partida].jugadores[1];
-                                            }
-
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(buffer, "+Ok. Partida finalizada. FRASE: %s. Ha ganado el jugador %s con %d puntos.\n", partidas[jugadores[i].partida].refran, jugadores[i].usuario, jugadores[i].puntuacion);
-                                            send(jugador2, buffer, sizeof(buffer), 0);
-
-                                            jugadores[i].puntuacion = 0;
-                                            jugadores[jugador2].puntuacion = 0;
-                                            
-                                        }
-                                        else{
-
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(buffer, "+Ok. Partida finalizada. FRASE: %s. No se ha acertado la frase.\n", partidas[jugadores[i].partida].refran);
-                                            send(i, buffer,sizeof(buffer), 0);
-
-                                            jugador2 = partidas[jugadores[i].partida].jugadores[0];
-
-                                            if(partidas[jugadores[i].partida].jugadores[0]==i){
-                                                jugador2 = partidas[jugadores[i].partida].jugadores[1];
-                                            }
-
-                                            bzero(buffer, sizeof(buffer));
-                                            sprintf(buffer, "+Ok. Partida finalizada. FRASE: %s. No se ha acertado la frase.\n", partidas[jugadores[i].partida].refran);
-                                            send(jugador2, buffer, sizeof(buffer), 0);
-                                        }
-
-                                        //Se cambia el estado de la partida a OFF (no está en marcha).
-                                        partidas[jugadores[i].partida].estado = OFF;
-
-                                        //Se inicializa el vector de jugadores a -1 otra vez.
-                                        partidas[jugadores[i].partida].jugadores[0] = -1;
-                                        partidas[jugadores[i].partida].jugadores[1] = -1;
-
-                                        //Se limpian los campos refran y panel.
-                                        bzero(partidas[jugadores[i].partida].refran, sizeof(partidas[jugadores[i].partida].refran));
-                                        bzero(partidas[jugadores[i].partida].panel, sizeof(partidas[jugadores[i].partida].panel));
-
-                                        //Se cambia el estado de los jugadores de JUGAR a INICIAR_PARTIDA.
-                                        jugadores[i].estado = INICIAR_PARTIDA;
-                                        jugadores[jugador2].estado = INICIAR_PARTIDA;
-                                    }
-                                    //Si el jugador que ha escrito no se encuentra en ninguna partida.
-                                    else{
-                                        bzero(buffer, sizeof(buffer));
-                                        strcpy(buffer, "-Err. No se encuentra en ninguna partida\n");
-                                        send(i, buffer, sizeof(buffer), 0);
-                                    }
-                                }
-                                //Un jugador ha introducido por pantalla la cadena PUNTUACION con el fin de obtener la suya.
-                                else if(strncmp(buffer, "PUNTUACION", 6) == 0){
-
-                                    //Sólo se le proporcionará su puntuación una vez que esté validado.
-                                    if(jugadores[i].estado > CONTRASENA){
-                                        bzero(buffer, sizeof(buffer));
-                                        sprintf(buffer, "Su puntuación es de %d puntos.\n", jugadores[i].puntuacion);
-                                        send(i, buffer, sizeof(buffer), 0);
-
-                                    }
-                                    else{
-                                        bzero(buffer, sizeof(buffer));
-                                        strcpy(buffer, "-Err. Para obtener su puntuación necesita estar validado en el sistema.\n");
-                                        send(i, buffer, sizeof(buffer), 0);
-                                    }
-                                }
+                                //El valor introducido es otro
                                 else{
                                     bzero(buffer, sizeof(buffer));
                                     strcpy(buffer, "-Err. El mensaje introducido no se corresponde con ninguna de las opciones disponibles.\n");

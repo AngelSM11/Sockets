@@ -5,7 +5,7 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
-#include<signal.h>
+#include <signal.h>
 #include <unistd.h>
 #include <time.h>
 #include <arpa/inet.h>
@@ -38,6 +38,7 @@ Estados del jugador.
 #define CONECTA_ABAJO_DERECHA 3
 #define CONECTA_ARRIBA_DERECHA 4
 #define NO_CONECTA 0
+#define CADENA_TABLERO 119
 
 /*
 Declaramos dos estructuras para almacenar los datos de los jugadores y de las partidas y relacionarlos entre ellos.
@@ -46,8 +47,6 @@ struct partida{
 	int estado;
 	int jugadores[2];
 	int turno;
-	char refran[250];
-	char panel[250];
 };
 
 struct jugador{
@@ -168,26 +167,6 @@ void nuevoJugador(int i){
 
 }
 
-//Cargamos los refranes en el vector de refranes.
-void extraerRefranes(char refranes[][250]){
-
-	FILE * ficheroRefranes = fopen("listadoRefranes.txt","r");
-
-	if(ficheroRefranes != NULL){
-
-		char refran[250];
-		int cont = 0;
-
-		while (fgets(refran, 250, ficheroRefranes)){
-
-			refran[strlen(refran) - 1] = '\0';
-			strcpy(refranes[cont], refran);
-			cont ++;
-
-		}
-		fclose(ficheroRefranes);
-	}
-}
 
 //Se mete al jugador con el socket pasado como argumento en una partida. Retorna el identificador de esa partida.
 int encontrarPartida(int descriptor_socket){
@@ -228,70 +207,6 @@ int encontrarPartida(int descriptor_socket){
 	return -1;
 }
 
-//Devuelve las veces que aparece una vocal en el refrán, o -1 en caso de que no sea una vocal.
-int comprobarVocal(int partida, char vocal){
-	int nveces = 0;
-
-	if(tolower(vocal)=='a' || tolower(vocal)=='e' || tolower(vocal)=='i' || tolower(vocal)=='o' || tolower(vocal)=='u'){
-
-		for (int i = 0; i < strlen(partidas[partida].refran); ++i){
-
-			if(tolower(partidas[partida].refran[i]) == tolower(vocal)){
-
-				partidas[partida].panel[i] = partidas[partida].refran[i];
-				nveces++;
-			}
-		}
-	}
-	else{
-		nveces = -1;
-	}
-	return nveces;
-}
-
-//Devuelve las veces que aparece una consonante en el refrán, o -1 en caso de que no sea una consonante.
-int comprobarConsonante(int partida, char consonante){
-	int n = 0;
-
-	if(tolower(consonante)!='a' && tolower(consonante)!='e' && tolower(consonante)!='i' && tolower(consonante)!='o' && tolower(consonante)!='u'){
-
-		for (int i = 0; i < strlen(partidas[partida].refran); ++i){
-
-			if(tolower(partidas[partida].refran[i]) == tolower(consonante)){
-
-				partidas[partida].panel[i] = partidas[partida].refran[i];
-				n++;
-			}
-		}
-	}
-	else{
-		n = -1;
-	}
-
-	return n;
-}
-
-//Comprueba si la frase introducida se corresponde con la solución (el refrán).
-int resolverPanel(char * refran, char * solution){
-
-	for (int i = 0; i < strlen(refran); ++i){
-
-		if(tolower(refran[i]) != tolower(solution[i])){
-
-			return 0;
-
-		}
-	}
-	return 1;
-	
-}
-
-//Comprueba si se ha terminado la partida con la última consonante o vocal introducida.
-int comprobarFinalPartida(int partida){
-
-	return strcmp(partidas[partida].refran, partidas[partida].panel) == 0;
-}
-
 //nuestro
 
 //Obtiene la fila de la columna elegida en la que se quedará la pieza
@@ -318,22 +233,27 @@ int colocarPieza(char jugador, int columna, char tablero[FILAS][COLUMNAS]) {
     return ERROR_NINGUNO;
 }
 
-//Funcion dibuja el tablero 
-int dibujarTablero(char tablero[FILAS][COLUMNAS]) {
-    dibujarEncabezado(COLUMNAS);
+//Funcion dibuja el tablero
+void dibujarEncabezado(int columnas) {
     printf("\n");
     int i;
-    for (i = 0; i < FILAS; ++i) {
-        int j;
-        for (j = 0; j < COLUMNAS; ++j) {
-            printf("|%c", tablero[i][j]);
-            if (j + 1 >= COLUMNAS) {
-                printf("|");
-            }
+    for (i = 0; i < columnas; ++i) {
+        printf("|%d", i + 1);
+        if (i + 1 >= columnas) {
+            printf("|");
         }
-        printf("\n");
+
     }
-    return 0;
+}
+
+void dibujarTablero(char tablero[FILAS][COLUMNAS], char * cadenatablero[CADENA_TABLERO]) {
+    strcpy(cadenatablero, "|1|2|3|4|5|6|7|\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n");
+
+    for (int i = 0; i < FILAS; ++i) {
+        for (int j = 0; j < COLUMNAS; ++j) {
+            cadenatablero[17*i+2*j+18] = tablero[i][j];
+        }
+    }
 }
 
 
