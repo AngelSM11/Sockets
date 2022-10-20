@@ -405,18 +405,66 @@ int main ( )
                                             //else si hay sitio
                                             else{
                                                 colocarPieza(partidas[jugadores[i].partida].turno, columnaInt, tablero );
+                                                
                                                 //if si gana la partida
-                                                //else if si no hay mas sitio en el tablero
-                                                //else si se sigue jugando
-                                                //Cambio de turno
-                        
-                                                if(partidas[jugadores[i].partida].turno == 0){
+                                                if(ganador(partidas[jugadores[i].partida].turno, tablero)==1){
+                                                    
+                                                    int jugador2;
+                                                    // Se envia mensaje a ambos jugadores de que ha termiando la partida
+                                                    bzero(buffer,sizeof(buffer));
+                                                    sprintf(buffer, "+Ok. Jugador %s ha ganado la partida.\n",  jugadores[i].usuario);
+                                                    send(i, buffer, sizeof(buffer), 0);
 
-                                                    partidas[jugadores[i].partida].turno = 1;
+                                                    jugador2 = partidas[jugadores[i].partida].jugadores[0];
+
+                                                    if(partidas[jugadores[i].partida].jugadores[0] == i){
+                                                        jugador2 = partidas[jugadores[i].partida].jugadores[1];
+                                                    }
+
+                                                    bzero(buffer, sizeof(buffer));
+                                                    sprintf(buffer, "+Ok. Jugador %s ha ganado la partida.\n",  jugadores[i].usuario);
+                                                    send(jugador2, buffer, sizeof(buffer), 0);
+
+                                                    //Termina la partida
+                                                    partidas[jugadores[i].partida].estado = OFF;
+
+                                                    partidas[jugadores[i].partida].jugadores[0] = -1;
+                                                    partidas[jugadores[i].partida].jugadores[1] = -1;
+
                                                 }
-                                                else{
+                                                //else if si no hay mas sitio en el tablero
+                                                else if(esEmpate(tablero)==0){
+                                                    int jugador2;
 
-                                                    partidas[jugadores[i].partida].turno = 0;
+                                                    //Se envia que termina la partida por empate a ambos jugadores
+                                                    bzero(buffer,sizeof(buffer));
+                                                    sprintf(buffer, "+Ok. Se ha producido un empate.\n");
+                                                    send(i, buffer, sizeof(buffer), 0);
+
+                                                    jugador2 = partidas[jugadores[i].partida].jugadores[0];
+
+                                                    if(partidas[jugadores[i].partida].jugadores[0] == i){
+                                                        jugador2 = partidas[jugadores[i].partida].jugadores[1];
+                                                    }
+
+                                                    bzero(buffer, sizeof(buffer));
+                                                    sprintf(buffer, "+Ok. Se ha producido un empate.\n");
+                                                    send(jugador2, buffer, sizeof(buffer), 0);
+
+                                                    //termina la partida
+                                                    partidas[jugadores[i].partida].estado = OFF;
+
+                                                    partidas[jugadores[i].partida].jugadores[0] = -1;
+                                                    partidas[jugadores[i].partida].jugadores[1] = -1;
+                                                }
+                                                //else si se sigue jugando
+                                                else{
+                                                	if(partidas[jugadores[i].partida].turno == 0){
+                                                    	partidas[jugadores[i].partida].turno = 1;
+                                                	}
+                                                	else{
+
+                                                    	partidas[jugadores[i].partida].turno = 0;
                                                 }
                                             }
                                         }
