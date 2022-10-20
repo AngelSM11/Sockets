@@ -391,6 +391,35 @@ int main ( )
                                             sprintf(buffer, "-Err. El valor introducido no esta comprendido entre 1 y 7.\n");
                                             send(i, buffer, sizeof(buffer), 0);
                                         }
+					else{
+                                            
+//aqui necesitamos un while para que se repita hasta que termine la partida
+
+                                            //if si no hay sitio en la columna
+                                            int columnaInt=columna-'0';//Transformar char a int
+                                            if(obtenerFilaDesocupada(columnaInt,tablero)==FILA_NO_ENCONTRADA){
+                                                bzero(buffer, sizeof(buffer));
+                                                sprintf(buffer, "--Err. Debe seleccionar otra columna que tenga alguna casilla disponible”.\n");
+                                                send(i, buffer, sizeof(buffer), 0);
+                                            }
+                                            //else si hay sitio
+                                            else{
+                                                colocarPieza(partidas[jugadores[i].partida].turno, columnaInt, tablero );
+                                                //if si gana la partida
+                                                //else if si no hay mas sitio en el tablero
+                                                //else si se sigue jugando
+                                                //Cambio de turno
+                        
+                                                if(partidas[jugadores[i].partida].turno == 0){
+
+                                                    partidas[jugadores[i].partida].turno = 1;
+                                                }
+                                                else{
+
+                                                    partidas[jugadores[i].partida].turno = 0;
+                                                }
+                                            }
+                                        }
                                     }
 
                                     
