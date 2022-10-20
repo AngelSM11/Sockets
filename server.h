@@ -221,15 +221,18 @@ int obtenerFilaDesocupada(int columna, char tablero[FILAS][COLUMNAS]) {
 }
 
 //Se le dice jugador (o si es la pieza X o O) y columna en la que queremos poner la pieza
-int colocarPieza(char jugador, int columna, char tablero[FILAS][COLUMNAS]) {
-    if (columna < 0 || columna >= COLUMNAS) {
-        return ERROR_FILA_INVALIDA;
-    }
+int colocarPieza(int jugador, int columna, char tablero[FILAS][COLUMNAS]) {
     int fila = obtenerFilaDesocupada(columna, tablero);
+    char pieza = 'x';
     if (fila == FILA_NO_ENCONTRADA) {
         return ERROR_COLUMNA_LLENA;
     }
-    tablero[fila][columna] = jugador;
+    //Si jugador=0 se usa pieza 'x' si no 'o', el jugador será 0 o 1 dependiendo del turno
+    if (jugador==0){
+		pieza='x';
+	}
+    else{ pieza='o';}
+    tablero[fila][columna] = pieza;
     return ERROR_NINGUNO;
 }
 
