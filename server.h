@@ -345,18 +345,18 @@ int ganador(char jugador, char tablero[FILAS][COLUMNAS]) {
         for (x = 0; x < COLUMNAS; x++) {
             int conteoArriba = contarArriba(x, y, jugador, tablero);
             if (conteoArriba >= CONECTA) {
-                return CONECTA_ARRIBA;
+                return 1;
             }
             if (contarDerecha(x, y, jugador, tablero) >= CONECTA) {
-                return CONECTA_DERECHA;
+                return 1;
             }
             if (contarArribaDerecha(x, y, jugador, tablero) >= CONECTA) {
-                return CONECTA_ARRIBA_DERECHA;
+                return 1;
             }
             if (contarAbajoDerecha(x, y, jugador, tablero) >= CONECTA) {
-                return CONECTA_ABAJO_DERECHA;
+                return 1;
             }
         }
     }
-    return NO_CONECTA;
+    return 0;
 }
