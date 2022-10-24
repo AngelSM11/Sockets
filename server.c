@@ -329,7 +329,7 @@ int main ( )
                                                 
                                                 char cadenaaux[] = "+Ok. Empieza la partida.\n";
                                                 dibujarTablero(tablero, &cadenatablero);
-                                                strcat(cadenaaux, &cadenatablero);
+                                                strcat(cadenaaux, cadenatablero);
 
                                                 bzero(buffer, sizeof(buffer));
                                                 strcpy(buffer, cadenaaux);
@@ -460,30 +460,31 @@ int main ( )
                                                     partidas[jugadores[i].partida].jugadores[0] = -1;
                                                     partidas[jugadores[i].partida].jugadores[1] = -1;
                                                 }
-                                                //else si se sigue jugando
+
                                                 else{
+                                                    dibujarTablero(tablero,&cadenatablero);
+                                                    
+                                                    bzero(buffer, sizeof(buffer));
+                                                    strcpy(buffer, cadenatablero);
+                                                    send(partidas[jugadores[i].partida].jugadores[1], buffer, sizeof(buffer),0);
+
+                                                    bzero(buffer, sizeof(buffer));
+                                                    strcpy(buffer, cadenatablero);
+                                                    send(partidas[jugadores[i].partida].jugadores[0], buffer, sizeof(buffer),0);
+
                                                 	if(partidas[jugadores[i].partida].turno == 0){
                                                     	partidas[jugadores[i].partida].turno = 1;
-
-                                                        char cadenaaux[] = "+Ok. Es tu turno.\n";
-                                                        dibujarTablero(tablero, &cadenatablero);
-                                                        strcat(cadenaaux, &cadenatablero);
                                                         
                                                         bzero(buffer, sizeof(buffer));
-                                                        strcpy(buffer, &cadenatablero);
-                                                        send(partidas[jugadores[i].partida].jugadores[0], buffer, sizeof(buffer),0);
+                                                        strcpy(buffer, "+Ok. Es tu turno.\n");
+                                                        send(partidas[jugadores[i].partida].jugadores[1], buffer, sizeof(buffer),0);
                                                 	}
                                                 	else{
                                                     	partidas[jugadores[i].partida].turno = 0;
-
-                                                        char cadenaaux[] = "+Ok. Es tu turno.\n";
-                                                        dibujarTablero(tablero, &cadenatablero);
-                                                        strcat(cadenaaux, &cadenatablero);
                                                         
                                                         bzero(buffer, sizeof(buffer));
-                                                        strcpy(buffer, &cadenatablero);
+                                                        strcpy(buffer, "+Ok. Es tu turno.\n");
                                                         send(partidas[jugadores[i].partida].jugadores[0], buffer, sizeof(buffer),0);
-
                                                     }
                                                 }
                                             }

@@ -249,7 +249,7 @@ void dibujarTablero(char tablero[FILAS][COLUMNAS], char * cadenatablero[CADENA_T
 
     for (int i = 0; i < FILAS; ++i) {
         for (int j = 0; j < COLUMNAS; ++j) {
-            cadenatablero[17*i+2*j+18] = tablero[i][j];
+            cadenatablero[17*i+2*j+18]=tablero[i][j];
         }
     }
 }
