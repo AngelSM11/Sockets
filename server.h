@@ -237,18 +237,6 @@ int colocarPieza(int jugador, int columna, char tablero[FILAS][COLUMNAS]) {
 }
 
 //Funcion dibuja el tablero
-void dibujarEncabezado(int columnas) {
-    printf("\n");
-    int i;
-    for (i = 0; i < columnas; ++i) {
-        printf("|%d", i + 1);
-        if (i + 1 >= columnas) {
-            printf("|");
-        }
-
-    }
-}
-
 void dibujarTablero(char tablero[FILAS][COLUMNAS], char * cadenatablero[CADENA_TABLERO]) {
     strcpy(cadenatablero, "|1|2|3|4|5|6|7|\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n");
 
