@@ -229,27 +229,28 @@ int obtenerFilaDesocupada(int columna, char tablero[FILAS][COLUMNAS]) {
 
 //Se le dice jugador (o si es la pieza X o O) y columna en la que queremos poner la pieza
 int colocarPieza(int jugador, int columna, char tablero[FILAS][COLUMNAS]) {
-    int fila = obtenerFilaDesocupada(columna, tablero);
-    char pieza = "x";
+    int fila = obtenerFilaDesocupada(columna-1, tablero);
+    char pieza;
     if (fila == FILA_NO_ENCONTRADA) {
         return ERROR_COLUMNA_LLENA;
     }
     //Si jugador=0 se usa pieza 'x' si no 'o', el jugador será 0 o 1 dependiendo del turno
     if (jugador==0){
-		pieza="x";
+        tablero[fila][columna-1] = 'x';
 	}
-    else{ pieza="o";}
-    tablero[fila][columna] = pieza;
+    else{
+        tablero[fila][columna-1] = 'o';
+    }
     return ERROR_NINGUNO;
 }
 
 //Funcion dibuja el tablero
-void dibujarTablero(char tablero[FILAS][COLUMNAS], char * cadenatablero[CADENA_TABLERO]) {
+void dibujarTablero(char tablero[FILAS][COLUMNAS], char cadenatablero[CADENA_TABLERO]) {
     strcpy(cadenatablero, "|1|2|3|4|5|6|7|\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n| | | | | | | |\n");
-
+    
     for (int i = 0; i < FILAS; ++i) {
         for (int j = 0; j < COLUMNAS; ++j) {
-            cadenatablero[17*i+2*j+18]=tablero[i][j];
+            cadenatablero[16*i+2*j+17]=tablero[i][j];
         }
     }
 }
