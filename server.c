@@ -39,6 +39,7 @@ int main ( )
     inicializarVectores();
 
     char tablero[FILAS][COLUMNAS];
+    tableroVacio(tablero);
     char cadenatablero[CADENA_TABLERO];
 
     srand(time(NULL));
@@ -328,7 +329,7 @@ int main ( )
                                                 
                                                 char cadenaaux[] = "+Ok. Empieza la partida.\n";
                                                 dibujarTablero(tablero, &cadenatablero);
-                                                strcat(cadenaaux, cadenatablero);
+                                                strcat(cadenaaux, &cadenatablero);
 
                                                 bzero(buffer, sizeof(buffer));
                                                 strcpy(buffer, cadenaaux);
@@ -382,22 +383,23 @@ int main ( )
 
                                     else if(jugadores[i].estado == JUGAR){
                                         char columna = buffer[14];
-                                        int columnaint = atoi(columna);
+                                        int columnaInt = columna -'0';
 
                                         /*
                                         Comprueba si es una columna.
                                         */
-                                        if(columnaint < 1 || columnaint > 7){
+                                        
+
+                                        if(columnaInt < 1 || columnaInt > 7){
                                             bzero(buffer, sizeof(buffer));
                                             sprintf(buffer, "-Err. El valor introducido no esta comprendido entre 1 y 7.\n");
                                             send(i, buffer, sizeof(buffer), 0);
                                         }
-					else{
+					                    else{
                                             
 //aqui necesitamos un while para que se repita hasta que termine la partida
 
                                             //if si no hay sitio en la columna
-                                            int columnaInt=columna-'0';//Transformar char a int
                                             if(obtenerFilaDesocupada(columnaInt,tablero)==FILA_NO_ENCONTRADA){
                                                 bzero(buffer, sizeof(buffer));
                                                 sprintf(buffer, "--Err. Debe seleccionar otra columna que tenga alguna casilla disponible”.\n");
@@ -434,7 +436,7 @@ int main ( )
 
                                                 }
                                                 //else if si no hay mas sitio en el tablero
-                                                else if(esEmpate(tablero)==0){
+                                                else if(esEmpate(tablero)==1){
                                                     int jugador2;
 
                                                     //Se envia que termina la partida por empate a ambos jugadores
@@ -462,17 +464,31 @@ int main ( )
                                                 else{
                                                 	if(partidas[jugadores[i].partida].turno == 0){
                                                     	partidas[jugadores[i].partida].turno = 1;
+
+                                                        char cadenaaux[] = "+Ok. Es tu turno.\n";
+                                                        dibujarTablero(tablero, &cadenatablero);
+                                                        strcat(cadenaaux, &cadenatablero);
+                                                        
+                                                        bzero(buffer, sizeof(buffer));
+                                                        strcpy(buffer, &cadenatablero);
+                                                        send(partidas[jugadores[i].partida].jugadores[0], buffer, sizeof(buffer),0);
                                                 	}
                                                 	else{
-
                                                     	partidas[jugadores[i].partida].turno = 0;
+
+                                                        char cadenaaux[] = "+Ok. Es tu turno.\n";
+                                                        dibujarTablero(tablero, &cadenatablero);
+                                                        strcat(cadenaaux, &cadenatablero);
+                                                        
+                                                        bzero(buffer, sizeof(buffer));
+                                                        strcpy(buffer, &cadenatablero);
+                                                        send(partidas[jugadores[i].partida].jugadores[0], buffer, sizeof(buffer),0);
+
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-
-                                    
-
                                 }
                                 //El valor introducido es otro
                                 else{

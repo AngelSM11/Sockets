@@ -209,10 +209,17 @@ int encontrarPartida(int descriptor_socket){
 
 //nuestro
 
+void tableroVacio(char tablero[FILAS][COLUMNAS]){
+    for(int f=0; f<FILAS; f++){
+        for(int c=0; c<COLUMNAS; c++){
+            tablero[f][c] = ' ';
+        }
+    }
+}
+
 //Obtiene la fila de la columna elegida en la que se quedará la pieza
 int obtenerFilaDesocupada(int columna, char tablero[FILAS][COLUMNAS]) {
-    int i;
-    for (i = FILAS - 1; i >= 0; i--) {
+    for (int i = FILAS - 1; i >= 0; i--) {
         if (tablero[i][columna] == ESPACIO_VACIO) {
             return i;
         }
@@ -223,15 +230,15 @@ int obtenerFilaDesocupada(int columna, char tablero[FILAS][COLUMNAS]) {
 //Se le dice jugador (o si es la pieza X o O) y columna en la que queremos poner la pieza
 int colocarPieza(int jugador, int columna, char tablero[FILAS][COLUMNAS]) {
     int fila = obtenerFilaDesocupada(columna, tablero);
-    char pieza = 'x';
+    char pieza = "x";
     if (fila == FILA_NO_ENCONTRADA) {
         return ERROR_COLUMNA_LLENA;
     }
     //Si jugador=0 se usa pieza 'x' si no 'o', el jugador será 0 o 1 dependiendo del turno
     if (jugador==0){
-		pieza='x';
+		pieza="x";
 	}
-    else{ pieza='o';}
+    else{ pieza="o";}
     tablero[fila][columna] = pieza;
     return ERROR_NINGUNO;
 }
@@ -250,8 +257,7 @@ void dibujarTablero(char tablero[FILAS][COLUMNAS], char * cadenatablero[CADENA_T
 
 //Funcion que nos imporfa si es empate
 int esEmpate(char tablero[FILAS][COLUMNAS]) {
-    int i;
-    for (i = 0; i < COLUMNAS; ++i) {
+    for (int i=0; i < COLUMNAS; ++i) {
         int resultado = obtenerFilaDesocupada(i, tablero);
         if (resultado != FILA_NO_ENCONTRADA) {
             return 0;
