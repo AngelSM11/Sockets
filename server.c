@@ -384,13 +384,14 @@ int main ( )
                                     else if(jugadores[i].estado == JUGAR){
                                         char columna = buffer[14];
                                         int columnaInt = columna -'0';
+                                        columnaInt = columnaInt -1;
 
                                         /*
                                         Comprueba si es una columna.
                                         */
                                         
 
-                                        if(columnaInt < 1 || columnaInt > 7){
+                                        if(columnaInt < 0 || columnaInt > 6){
                                             bzero(buffer, sizeof(buffer));
                                             sprintf(buffer, "-Err. El valor introducido no esta comprendido entre 1 y 7.\n");
                                             send(i, buffer, sizeof(buffer), 0);
