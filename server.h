@@ -268,64 +268,50 @@ int esEmpate(char tablero[FILAS][COLUMNAS]) {
 }
 
 
-int contarArriba(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
-    if(tablero[f][c]==jugador && tablero[f-1][c]==jugador && tablero[f-2][c]==jugador && tablero[f-3][c]==jugador){
-        return 1;
-    }
-    return 0;
-}
 
-int contarIzquierda(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
-    if(tablero[f][c]==jugador && tablero[f][c-1]==jugador && tablero[f][c-2]==jugador && tablero[f][c-3]==jugador){
-        return 1;
-    }
-    return 0;
-}
-
-int contarArribaDerecha(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
-    if(tablero[f][c]==jugador && tablero[f-1][c+1]==jugador && tablero[f-2][c+2]==jugador && tablero[f-3][c+3]==jugador){
-        return 1;
-    }
-    return 0;
-}
-
-int contarArribaIzquierda(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
-    if(tablero[f][c]==jugador && tablero[f-1][c-1]==jugador && tablero[f-2][c-2]==jugador && tablero[f-3][c-3]==jugador){
-        return 1;
-    }
-    return 0;
-}
 
 int ganador(char jugador, char tablero[FILAS][COLUMNAS]) {
 
     for(int f=3; f<FILAS; f++){
         for(int c=0; c<COLUMNAS; c++){
-            if(contarArriba(f, c, jugador, tablero)==1){
-                return 1;
+            if(tablero[f][c]=='x' && tablero[f-1][c]=='x' && tablero[f-2][c]=='x' && tablero[f-3][c]=='x'){
+            return 1;
+            }
+            if(tablero[f][c]=='o' && tablero[f-1][c]=='o' && tablero[f-2][c]=='o' && tablero[f-3][c]=='o'){
+            return 1;
             }
         }
     }
 
     for(int f=0; f<FILAS; f++){
         for(int c=3; c<COLUMNAS; c++){
-            if(contarIzquierda(f, c, jugador, tablero)==1){
-                return 1;
+            if(tablero[f][c]=='x' && tablero[f][c-1]=='x' && tablero[f][c-2]=='x' && tablero[f][c-3]=='x'){
+            return 1;
+            }
+            if(tablero[f][c]=='o' && tablero[f][c-1]=='o' && tablero[f][c-2]=='o' && tablero[f][c-3]=='o'){
+            return 1;
             }
         }
     }
 
     for(int f=3; f<FILAS; f++){
         for(int c=0; c<(COLUMNAS-3); c++){
-            if(contarArribaDerecha(f, c, jugador, tablero)== 1){
-                return 1;
+            if(tablero[f][c]=='x' && tablero[f-1][c+1]=='x' && tablero[f-2][c+2]=='x' && tablero[f-3][c+3]=='x'){
+            return 1;
+            }
+            if(tablero[f][c]=='o' && tablero[f-1][c+1]=='o' && tablero[f-2][c+2]=='o' && tablero[f-3][c+3]=='o'){
+            return 1;
             }
         }
     }
 
     for(int f=3; f<FILAS; f++){
         for(int c=3; c<COLUMNAS; c++){
-            if(contarArribaIzquierda(f, c, jugador, tablero)==1){
-                return 1;
+            if(tablero[f][c]=='x' && tablero[f-1][c-1]=='x' && tablero[f-2][c-2]=='x' && tablero[f-3][c-3]=='x'){
+            return 1;
+            }
+            if(tablero[f][c]=='o' && tablero[f-1][c-1]=='o' && tablero[f-2][c-2]=='o' && tablero[f-3][c-3]=='o'){
+            return 1;
             }
         }
     }
