@@ -439,13 +439,22 @@ int main ( )
                                                 //else if si no hay mas sitio en el tablero
                                                 else if(esEmpate(tablero)==1){
                                                     int jugador2;
+                                                    jugador2 = partidas[jugadores[i].partida].jugadores[0];
+
+                                                    dibujarTablero(tablero,&cadenatablero);
+
+                                                    bzero(buffer, sizeof(buffer));
+                                                    strcpy(buffer, cadenatablero);
+                                                    send(i, buffer, sizeof(buffer),0);
+                                                    
+                                                    bzero(buffer, sizeof(buffer));
+                                                    strcpy(buffer, cadenatablero);
+                                                    send(jugador2, buffer, sizeof(buffer),0);
 
                                                     //Se envia que termina la partida por empate a ambos jugadores
                                                     bzero(buffer,sizeof(buffer));
                                                     sprintf(buffer, "+Ok. Se ha producido un empate.\n");
                                                     send(i, buffer, sizeof(buffer), 0);
-
-                                                    jugador2 = partidas[jugadores[i].partida].jugadores[0];
 
                                                     if(partidas[jugadores[i].partida].jugadores[0] == i){
                                                         jugador2 = partidas[jugadores[i].partida].jugadores[1];
