@@ -267,91 +267,68 @@ int esEmpate(char tablero[FILAS][COLUMNAS]) {
     return 1;
 }
 
-int contarArriba(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
-    int yInicio = (y - CONECTA >= 0) ? y - CONECTA + 1 : 0;
-    int contador = 0;
-    for (; yInicio <= y; yInicio++) {
-        if (tablero[yInicio][x] == jugador) {
-            contador++;
-        } else {
-            contador = 0;
-        }
+
+int contarArriba(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
+    if(tablero[f][c]==jugador && tablero[f-1][c]==jugador && tablero[f-2][c]==jugador && tablero[f-3][c]==jugador){
+        return 1;
     }
-    return contador;
+    return 0;
 }
 
-int contarDerecha(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
-    int xFin = (x + CONECTA < COLUMNAS) ? x + CONECTA - 1 : COLUMNAS - 1;
-    int contador = 0;
-    for (; x <= xFin; x++) {
-        if (tablero[y][x] == jugador) {
-            contador++;
-        } else {
-            contador = 0;
-        }
+int contarIzquierda(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
+    if(tablero[f][c]==jugador && tablero[f][c-1]==jugador && tablero[f][c-2]==jugador && tablero[f][c-3]==jugador){
+        return 1;
     }
-    return contador;
+    return 0;
 }
 
-int contarArribaDerecha(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
-    int xFin = (x + CONECTA < COLUMNAS) ? x + CONECTA - 1 : COLUMNAS - 1;
-    int yInicio = (y - CONECTA >= 0) ? y - CONECTA + 1 : 0;
-    int contador = 0;
-    while (x <= xFin && yInicio <= y) {
-        if (tablero[y][x] == jugador) {
-            contador++;
-        } else {
-            contador = 0;
-        }
-        x++;
-        y--;
+int contarArribaDerecha(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
+    if(tablero[f][c]==jugador && tablero[f-1][c+1]==jugador && tablero[f-2][c+2]==jugador && tablero[f-3][c+3]==jugador){
+        return 1;
     }
-    return contador;
+    return 0;
 }
 
-int contarAbajoDerecha(int x, int y, char jugador, char tablero[FILAS][COLUMNAS]) {
-    int xFin = (x + CONECTA < COLUMNAS) ? x + CONECTA - 1 : COLUMNAS - 1;
-    int yFin = (y + CONECTA < FILAS) ? y + CONECTA - 1 : FILAS - 1;
-    int contador = 0;
-    while (x <= xFin && y <= yFin) {
-        if (tablero[y][x] == jugador) {
-            contador++;
-        } else {
-            contador = 0;
-        }
-        x++;
-        y++;
+int contarArribaIzquierda(int f, int c, char jugador, char tablero[FILAS][COLUMNAS]){
+    if(tablero[f][c]==jugador && tablero[f-1][c-1]==jugador && tablero[f-2][c-2]==jugador && tablero[f-3][c-3]==jugador){
+        return 1;
     }
-    return contador;
+    return 0;
 }
 
 int ganador(char jugador, char tablero[FILAS][COLUMNAS]) {
-/*
- * Solo necesitamos
- * Arriba
- * Derecha
- * Arriba derecha
- * Abajo derecha
- *
- * */
-    int y;
-    for (y = 0; y < FILAS; y++) {
-        int x;
-        for (x = 0; x < COLUMNAS; x++) {
-            int conteoArriba = contarArriba(x, y, jugador, tablero);
-            if (conteoArriba >= CONECTA) {
-                return 1;
-            }
-            if (contarDerecha(x, y, jugador, tablero) >= CONECTA) {
-                return 1;
-            }
-            if (contarArribaDerecha(x, y, jugador, tablero) >= CONECTA) {
-                return 1;
-            }
-            if (contarAbajoDerecha(x, y, jugador, tablero) >= CONECTA) {
+
+    for(int f=3; f<FILAS; f++){
+        for(int c=0; c<COLUMNAS; c++){
+            if(contarArriba(f, c, jugador, tablero)==1){
                 return 1;
             }
         }
     }
+
+    for(int f=0; f<FILAS; f++){
+        for(int c=3; c<COLUMNAS; c++){
+            if(contarIzquierda(f, c, jugador, tablero)==1){
+                return 1;
+            }
+        }
+    }
+
+    for(int f=3; f<FILAS; f++){
+        for(int c=0; c<(COLUMNAS-3); c++){
+            if(contarArribaDerecha(f, c, jugador, tablero)== 1){
+                return 1;
+            }
+        }
+    }
+
+    for(int f=3; f<FILAS; f++){
+        for(int c=3; c<COLUMNAS; c++){
+            if(contarArribaIzquierda(f, c, jugador, tablero)==1){
+                return 1;
+            }
+        }
+    }
+
     return 0;
 }
