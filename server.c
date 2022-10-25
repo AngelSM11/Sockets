@@ -327,7 +327,7 @@ int main ( )
                                             */
                                             if(partidas[id_partida].estado == ON){
                                                 
-                                                char cadenaaux[] = "+Ok. Empieza la partida.\n";
+                                                char cadenaaux[] = "+Ok. Empieza la partida.\n\n--------------------\n| Juego 4 en línea |\n--------------------\n";
                                                 dibujarTablero(tablero, &cadenatablero);
                                                 strcat(cadenaaux, cadenatablero);
 
@@ -409,17 +409,28 @@ int main ( )
                                             //else si hay sitio
                                             else{
                                                 colocarPieza(partidas[jugadores[i].partida].turno, columnaInt, tablero );
+                                                char cadenaaux[] = "--------------------\n| Juego 4 en línea |\n--------------------\n";
+                                                dibujarTablero(tablero, &cadenatablero);
+                                                strcat(cadenaaux, cadenatablero);
+                                                    
+                                                bzero(buffer, sizeof(buffer));
+                                                strcpy(buffer, cadenaaux);
+                                                send(partidas[jugadores[i].partida].jugadores[1], buffer, sizeof(buffer),0);
+
+                                                bzero(buffer, sizeof(buffer));
+                                                strcpy(buffer, cadenaaux);
+                                                send(partidas[jugadores[i].partida].jugadores[0], buffer, sizeof(buffer),0);
                                                 
                                                 //if si gana la partida
                                                 if(ganador(partidas[jugadores[i].partida].turno, tablero)==1){
                                                     
                                                     int jugador2;
+                                                    jugador2 = partidas[jugadores[i].partida].jugadores[0];
                                                     // Se envia mensaje a ambos jugadores de que ha termiando la partida
                                                     bzero(buffer,sizeof(buffer));
                                                     sprintf(buffer, "+Ok. Jugador %s ha ganado la partida.\n",  jugadores[i].usuario);
                                                     send(i, buffer, sizeof(buffer), 0);
 
-                                                    jugador2 = partidas[jugadores[i].partida].jugadores[0];
 
                                                     if(partidas[jugadores[i].partida].jugadores[0] == i){
                                                         jugador2 = partidas[jugadores[i].partida].jugadores[1];
@@ -440,16 +451,6 @@ int main ( )
                                                 else if(esEmpate(tablero)==1){
                                                     int jugador2;
                                                     jugador2 = partidas[jugadores[i].partida].jugadores[0];
-
-                                                    dibujarTablero(tablero,&cadenatablero);
-
-                                                    bzero(buffer, sizeof(buffer));
-                                                    strcpy(buffer, cadenatablero);
-                                                    send(i, buffer, sizeof(buffer),0);
-                                                    
-                                                    bzero(buffer, sizeof(buffer));
-                                                    strcpy(buffer, cadenatablero);
-                                                    send(jugador2, buffer, sizeof(buffer),0);
 
                                                     //Se envia que termina la partida por empate a ambos jugadores
                                                     bzero(buffer,sizeof(buffer));
@@ -472,15 +473,6 @@ int main ( )
                                                 }
 
                                                 else{
-                                                    dibujarTablero(tablero,&cadenatablero);
-                                                    
-                                                    bzero(buffer, sizeof(buffer));
-                                                    strcpy(buffer, cadenatablero);
-                                                    send(partidas[jugadores[i].partida].jugadores[1], buffer, sizeof(buffer),0);
-
-                                                    bzero(buffer, sizeof(buffer));
-                                                    strcpy(buffer, cadenatablero);
-                                                    send(partidas[jugadores[i].partida].jugadores[0], buffer, sizeof(buffer),0);
 
                                                 	if(partidas[jugadores[i].partida].turno == 0){
                                                     	partidas[jugadores[i].partida].turno = 1;
